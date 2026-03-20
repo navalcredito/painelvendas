@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIB Crédito — Painel de Vendas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0d11;--s1:#12151c;--s2:#181c25;--s3:#1e2330;--bd:#2a2f3d;
+  --tx:#e4e6ed;--tm:#7c8399;--th:#545a6e;
+  --ac:#3b82f6;--acg:rgba(59,130,246,.12);
+  --gn:#22c55e;--gng:rgba(34,197,94,.1);
+  --yl:#eab308;--ylg:rgba(234,179,8,.1);
+  --rd:#ef4444;--rdg:rgba(239,68,68,.1);
+  --or:#f97316;--org:rgba(249,115,22,.1);
+  --pp:#a855f7;--ppg:rgba(168,85,247,.1);
+  --tl:#14b8a6;--tlg:rgba(20,184,166,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.app{display:flex;min-height:100vh}
+
+/* Sidebar */
+.side{width:260px;background:var(--s1);border-right:1px solid var(--bd);padding:20px 0;position:fixed;height:100vh;overflow-y:auto;z-index:10}
+.side-logo{padding:0 20px 20px;border-bottom:1px solid var(--bd);margin-bottom:12px}
+.side-logo h1{font-family:'Space Mono',monospace;font-size:13px;letter-spacing:2px;color:var(--ac);text-transform:uppercase}
+.side-logo p{font-size:11px;color:var(--tm);margin-top:4px}
+.nav-section{padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--th);margin-top:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;color:var(--tm);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:var(--s2);color:var(--tx)}
+.nav-item.active{background:var(--acg);color:var(--ac);border-left-color:var(--ac);font-weight:500}
+.nav-icon{width:18px;text-align:center;font-size:14px}
+
+/* Main */
+.main{margin-left:260px;flex:1;min-height:100vh}
+.header{padding:16px 32px;border-bottom:1px solid var(--bd);background:var(--s1);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+.header h2{font-size:16px;font-weight:700}
+.header .badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 12px;border-radius:20px;background:var(--gng);color:var(--gn)}
+.content{padding:28px 32px}
+
+/* Cards */
+.grid{display:grid;gap:16px;margin-bottom:28px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:20px;transition:border-color .2s}
+.card:hover{border-color:rgba(59,130,246,.25)}
+.card-title{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm);margin-bottom:10px;font-weight:700}
+.card h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.card p{font-size:13px;color:var(--tm);line-height:1.6}
+
+/* Script blocks */
+.script-block{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:18px;margin-bottom:14px;position:relative}
+.script-block.highlight{border-left:3px solid var(--ac)}
+.script-block.warning{border-left:3px solid var(--yl)}
+.script-block.success{border-left:3px solid var(--gn)}
+.script-block.danger{border-left:3px solid var(--rd)}
+.script-block.info{border-left:3px solid var(--tl)}
+.script-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;display:inline-block;padding:2px 8px;border-radius:4px}
+.label-blue{background:var(--acg);color:var(--ac)}
+.label-green{background:var(--gng);color:var(--gn)}
+.label-yellow{background:var(--ylg);color:var(--yl)}
+.label-red{background:var(--rdg);color:var(--rd)}
+.label-orange{background:var(--org);color:var(--or)}
+.label-purple{background:var(--ppg);color:var(--pp)}
+.label-teal{background:var(--tlg);color:var(--tl)}
+.script-text{font-size:14px;line-height:1.7;white-space:pre-wrap}
+.script-text em{color:var(--yl);font-style:normal}
+.script-text strong{color:var(--gn);font-weight:600}
+.script-note{font-size:12px;color:var(--tm);margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)}
+
+/* Steps */
+.step-list{counter-reset:step}
+.step-item{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--bd);counter-increment:step}
+.step-item:last-child{border-bottom:none}
+.step-num{min-width:32px;height:32px;border-radius:50%;background:var(--acg);color:var(--ac);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0}
+.step-content{flex:1}
+.step-content h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.step-content p{font-size:13px;color:var(--tm);line-height:1.5}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--bd);margin-bottom:20px;overflow-x:auto}
+.tab{padding:12px 18px;font-size:13px;color:var(--tm);cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+.tab:hover{color:var(--tx)}
+.tab.active{color:var(--ac);border-bottom-color:var(--ac);font-weight:500}
+
+/* Simulator */
+.sim-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.sim-group label{font-size:12px;color:var(--tm);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.sim-group input,.sim-group select{padding:10px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;font-family:inherit;outline:none}
+.sim-group input:focus{border-color:var(--ac)}
+.sim-result{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:20px;margin-top:16px}
+.sim-result .big{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--gn)}
+.sim-result .detail{font-size:13px;color:var(--tm);margin-top:6px}
+
+/* Objection cards */
+.objection{background:var(--s2);border:1px solid var(--bd);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.objection-header{padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500}
+.objection-header:hover{background:var(--s3)}
+.objection-body{padding:0 18px 16px;font-size:13px;color:var(--tm);line-height:1.7;display:none}
+.objection.open .objection-body{display:block}
+.objection-tag{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700}
+
+/* KPI strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:16px}
+.kpi .label{font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.kpi .value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700}
+
+/* Checklist */
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.check-item:hover{border-color:rgba(59,130,246,.3)}
+.check-item.done{opacity:.5}
+.check-item.done .check-text{text-decoration:line-through}
+.check-box{width:20px;height:20px;border-radius:50%;border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:.15s}
+.check-item.done .check-box{background:var(--gn);border-color:var(--gn)}
+.check-item.done .check-box::after{content:'✓';font-size:11px;color:#fff}
+.check-text{font-size:13px;line-height:1.4}
+
+/* Copy button */
+.copy-btn{position:absolute;top:12px;right:12px;padding:4px 10px;background:var(--s3);border:1px solid var(--bd);border-radius:6px;color:var(--tm);font-size:10px;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.5px}
+.copy-btn:hover{color:var(--tx);border-color:var(--ac)}
+
+/* Section title */
+.sec-title{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--tm);margin-bottom:16px}
+
+/* Channel badge */
+.ch-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:12px;margin-right:6px;margin-bottom:6px}
+.ch-wpp{background:rgba(37,211,102,.12);color:#25d366}
+.ch-tel{background:var(--acg);color:var(--ac)}
+.ch-email{background:var(--ppg);color:var(--pp)}
+.ch-site{background:var(--org);color:var(--or)}
+
+/* Responsive */
+@media(max-width:900px){
+  .side{display:none}
+  .main{margin-left:0}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .kpi-strip{grid-template-columns:1fr 1fr}
+}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side">
+    <div class="side-logo">
+      <h1>DIB Crédito</h1>
+      <p>Manual de Vendas — SPCRED</p>
+    </div>
+    <div class="nav-section">Início</div>
+    <div class="nav-item active" data-page="home"><span class="nav-icon">◉</span> Dashboard</div>
+    <div class="nav-section">Produto</div>
+    <div class="nav-item" data-page="produto"><span class="nav-icon">◆</span> Conheça o Produto</div>
+    <div class="nav-item" data-page="operacoes"><span class="nav-icon">⟳</span> Operações</div>
+    <div class="nav-item" data-page="simulador"><span class="nav-icon">▤</span> Simulador</div>
+    <div class="nav-section">Vendas</div>
+    <div class="nav-item" data-page="abordagem"><span class="nav-icon">◎</span> Scripts por Canal</div>
+    <div class="nav-item" data-page="fluxo"><span class="nav-icon">▶</span> Fluxo de Atendimento</div>
+    <div class="nav-item" data-page="objecoes"><span class="nav-icon">◇</span> Contorno de Objeções</div>
+    <div class="nav-section">Ferramentas</div>
+    <div class="nav-item" data-page="toolkit"><span class="nav-icon">⬡</span> Kit de Confiança</div>
+    <div class="nav-item" data-page="checklist"><span class="nav-icon">☐</span> Checklist Diário</div>
+    <div class="nav-item" data-page="neuro"><span class="nav-icon">◈</span> Neurociência de Vendas</div>
+  </nav>
+
+  <div class="main">
+    <div class="header">
+      <h2 id="pageTitle">Dashboard</h2>
+      <span class="badge">Treinamento Ativo</span>
+    </div>
+    <div class="content">
+
+<!-- ======= HOME ======= -->
+<div class="page" id="page-home">
+  <div class="kpi-strip">
+    <div class="kpi"><div class="label">Taxa SPCRED</div><div class="value" style="color:var(--gn)">3,99%</div><div style="font-size:11px;color:var(--tm)">a.m. — menor do estado</div></div>
+    <div class="kpi"><div class="label">Margem Cartão Benefício</div><div class="value" style="color:var(--ac)">15%</div><div style="font-size:11px;color:var(--tm)">separada dos 30% do consignado</div></div>
+    <div class="kpi"><div class="label">Saque Disponível</div><div class="value">70%</div><div style="font-size:11px;color:var(--tm)">do limite, direto na conta-salário</div></div>
+    <div class="kpi"><div class="label">Prazo Máximo</div><div class="value">96x</div><div style="font-size:11px;color:var(--tm)">parcelas com desconto em folha</div></div>
+  </div>
+
+  <div class="sec-title">Regra de Ouro</div>
+  <div class="script-block success">
+    <div class="script-text" style="font-size:16px;text-align:center;padding:12px 0">
+"Eu não liguei pra te vender nada. Liguei porque <strong>seu órgão liberou uma nova margem</strong> e achei que você gostaria de saber."
+
+A venda acontece quando o cliente sente que <strong>descobriu uma oportunidade</strong>, não quando sente que alguém está empurrando um produto.</div>
+  </div>
+
+  <div class="sec-title" style="margin-top:24px">Nossos Canais de Aquisição</div>
+  <div class="grid g4">
+    <div class="card"><span class="ch-badge ch-wpp">WhatsApp</span><h3>Disparo Ativo</h3><p>Base filtrada TJ-SP e SPPREV. Margem benefício 100% livre.</p></div>
+    <div class="card"><span class="ch-badge ch-tel">Telefone</span><h3>Ligação Ativa</h3><p>Cold call consultivo. Abertura educativa, não vendedora.</p></div>
+    <div class="card"><span class="ch-badge ch-site">Site</span><h3>Lead Inbound</h3><p>Formulário /emprestimo-ja. Lead já qualificado.</p></div>
+    <div class="card"><span class="ch-badge ch-email">Email</span><h3>Email Marketing</h3><p>Campanha segmentada por órgão. Educação + CTA.</p></div>
+  </div>
+
+  <div class="sec-title">Entenda as Duas Operações</div>
+  <div class="grid g2">
+    <div class="card" style="border-left:3px solid var(--gn)">
+      <h3 style="color:var(--gn)">Novo Contrato</h3>
+      <p>Cliente nunca teve cartão benefício. Margem 100% livre. Operação simples: associa à cooperativa, emite cartão, libera saque.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--or)">
+      <h3 style="color:var(--or)">Refinanciamento Externo</h3>
+      <p>Cliente já tem cartão benefício em outro banco a taxa maior. A gente quita o saldo devedor e cede nosso crédito a 3,99% + troco.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ======= PRODUTO ======= -->
+<div class="page hidden" id="page-produto">
+  <div class="sec-title">O Que É o Cartão Benefício Consignado</div>
+  <div class="script-block info">
+    <div class="script-text">O cartão benefício consignado NÃO é um cartão de crédito rotativo. É uma linha de crédito com margem própria (15% do salário bruto), separada dos 30% do consignado tradicional.
+
+O servidor que já esgotou a margem do consignado tradicional AINDA TEM 15% livre para o cartão benefício. Essa é a nossa oportunidade.
+
+O que a SPCRED faz: libera <strong>saque de 70% do limite</strong> direto na conta-salário do servidor, com parcelas descontadas em folha. Funciona exatamente como o consignado tradicional — mas usa uma margem diferente.</div>
+  </div>
+
+  <div class="sec-title" style="margin-top:24px">Por Que Somos Diferentes</div>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="color:var(--gn)">Menor Taxa do Estado</h3>
+      <p>3,99% a.m. — comprovado no ranking oficial da SEFAZ (Consulta de Taxas). Concorrentes como BMG cobram 5,13%, CDC Card 15,99%, Keypay 10%. Sempre mande o print do ranking pro cliente.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--ac)">Cooperativa, Não Banco</h3>
+      <p>O cliente vira cooperado (dono). Não tem acionista lucrando com os juros dele. O 1º mês é gratuito pra conhecer os benefícios. Ele tem voz e voto na assembleia.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--pp)">Sem Cartão Rotativo</h3>
+      <p>NÃO emitimos cartão de crédito. NÃO colocamos o cliente no rotativo. É saque do limite direto pra conta-salário com cobrança em folha. Simples e transparente.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--tl)">Benefícios do Cooperado</h3>
+      <p>Desconto em farmácias, aluguel de carros, atendimento médico, viagens, cursos. Sorteios e brindes mensais. Assessoria jurídica. Educação financeira.</p>
+    </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:24px">Como Funciona a Margem</div>
+  <div class="script-block highlight">
+    <div class="script-text"><em>Margem do Consignado Tradicional: 30%</em> do salário bruto
+→ É onde estão os empréstimos do banco. A maioria dos servidores já esgotou.
+
+<em>Margem do Cartão Benefício: 15%</em> do salário bruto
+→ É uma margem ADICIONAL, separada. Mesmo com 30% esgotado, os 15% podem estar 100% livres.
+
+<em>Exemplo prático:</em>
+Servidor ganha R$10.000 bruto
+→ Margem consignado: R$3.000 (comprometida)
+→ Margem cartão benefício: R$1.500 (100% LIVRE)
+→ Saque de 70%: pode liberar até R$21.976 (96x de R$950)
+
+Quando o servidor vê no portal que a margem de benefício está livre, ele entende que tem dinheiro disponível que não sabia.</div>
+  </div>
+</div>
+
+<!-- ======= OPERAÇÕES ======= -->
+<div class="page hidden" id="page-operacoes">
+  <div class="tabs">
+    <button class="tab active" onclick="showOpTab('novo')">Novo Contrato</button>
+    <button class="tab" onclick="showOpTab('refi')">Refinanciamento Externo</button>
+  </div>
+
+  <div id="op-novo">
+    <div class="sec-title">Fluxo — Novo Contrato</div>
+    <div class="step-item"><div class="step-num">1</div><div class="step-content"><h4>Qualificar o Lead</h4><p>Confirmar que é servidor estadual de SP, verificar se tem margem de benefício disponível no portal. Se possível, já puxar o print da margem.</p></div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-content"><h4>Apresentar o Produto</h4><p>Explicar que é uma margem nova, separada do consignado. Mostrar o valor disponível e a taxa de 3,99% (menor do estado). Enviar print do ranking SEFAZ.</p></div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-content"><h4>Associar à Cooperativa</h4><p>Explicar que pra acessar o cartão, precisa ser cooperado SPCRED. 1º mês gratuito. Listar os benefícios do cooperado.</p></div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-content"><h4>Simular e Proposta</h4><p>Montar simulação com valor, parcelas e taxa. Enviar proposta formatada no WhatsApp. Sempre sugerir NÃO usar a margem toda — "vai que acontece uma emergência".</p></div></div>
+    <div class="step-item"><div class="step-num">5</div><div class="step-content"><h4>Coleta de Documentos</h4><p>RG/CPF, comprovante de residência, último holerite. Enviar link para assinatura digital da CCB.</p></div></div>
+    <div class="step-item"><div class="step-num">6</div><div class="step-content"><h4>Averbação e Desembolso</h4><p>SPCRED averba a margem no portal. Após averbação, dinheiro cai na conta-salário. Prazo: até 2 horas após aprovação.</p></div></div>
+    <div class="step-item"><div class="step-num">7</div><div class="step-content"><h4>Pós-venda</h4><p>Confirmar recebimento. Apresentar benefícios do cooperado. Pedir indicação de colega servidor. Follow-up em 7 dias.</p></div></div>
+  </div>
+
+  <div id="op-refi" class="hidden">
+    <div class="sec-title">Fluxo — Refinanciamento / Recompra Externa</div>
+    <div class="script-block warning" style="margin-bottom:20px">
+      <span class="script-label label-yellow">Atenção</span>
+      <div class="script-text">Essa operação é mais complexa e exige cuidado redobrado com documentos e prazos. Cada passo deve ser executado na ordem.</div>
+    </div>
+    <div class="step-item"><div class="step-num">1</div><div class="step-content"><h4>Pedir Autorização do Cliente</h4><p>Solicitar autorização formal para pedir o boleto de quitação do cartão benefício atual em outra instituição.</p></div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-content"><h4>Solicitar Login/Senha do Portal</h4><p>Pedir as credenciais do portal do consignado para acompanhar a desaverbação.</p></div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-content"><h4>Receber Boleto de Quitação</h4><p>Cliente envia o boleto de quitação emitido pelo banco atual.</p></div></div>
+    <div class="step-item"><div class="step-num" style="background:var(--rdg);color:var(--rd)">4</div><div class="step-content"><h4 style="color:var(--rd)">Verificar Autenticidade do Boleto ⚠</h4><p><strong>CRÍTICO:</strong> Conferir se o boleto NÃO é fraudado. Verificar: titularidade corresponde ao cliente, modalidade do crédito está correta, beneficiário é realmente o banco, prazo de pagamento. Qualquer divergência = PARAR e escalar.</p></div></div>
+    <div class="step-item"><div class="step-num">5</div><div class="step-content"><h4>Preencher Termo de Recompra</h4><p>DIB/Fronteira preenche o Termo de Recompra e sobe junto com a CCB para assinatura do cliente.</p></div></div>
+    <div class="step-item"><div class="step-num">6</div><div class="step-content"><h4>Cliente Assina CCB + Termo</h4><p>O cliente assina a CCB com o Termo de Recompra anexado. Ambos documentos juntos.</p></div></div>
+    <div class="step-item"><div class="step-num">7</div><div class="step-content"><h4>SPCRED Ainda NÃO Desembolsa</h4><p>Nesse momento o dinheiro NÃO sai. Primeiro precisamos quitar o outro banco e desaverbar.</p></div></div>
+    <div class="step-item"><div class="step-num">8</div><div class="step-content"><h4>Mudar Senha do Portal</h4><p>DIB/Fronteira muda a senha do portal provisoriamente para acompanhar o processo de desaverbação.</p></div></div>
+    <div class="step-item"><div class="step-num">9</div><div class="step-content"><h4>SPCRED Paga o Boleto de Quitação</h4><p>A cooperativa efetua o pagamento do boleto de quitação do banco anterior.</p></div></div>
+    <div class="step-item"><div class="step-num">10</div><div class="step-content"><h4>Guardar Comprovante de Pagamento</h4><p>SPCRED envia o comprovante de pagamento do boleto para DIB/Fronteira. GUARDAR esse comprovante — é sua segurança.</p></div></div>
+    <div class="step-item"><div class="step-num">11</div><div class="step-content"><h4>Acompanhar Desaverbação</h4><p>DIB/Fronteira monitora diariamente o portal do cliente até a margem ser desaverbada pelo banco anterior.</p></div></div>
+    <div class="step-item"><div class="step-num">12</div><div class="step-content"><h4>Avisar SPCRED da Desaverbação</h4><p>Assim que a margem aparecer livre no portal, avisar imediatamente a SPCRED para averbar a nova margem.</p></div></div>
+    <div class="step-item"><div class="step-num" style="background:var(--gng);color:var(--gn)">13</div><div class="step-content"><h4 style="color:var(--gn)">SPCRED Desembolsa o Troco</h4><p>Após averbação, a SPCRED libera o valor residual (troco) na conta-salário do cliente. Esse é o dinheiro que o cliente recebe.</p></div></div>
+    <div class="step-item"><div class="step-num">14</div><div class="step-content"><h4>Devolver Senha do Portal</h4><p>Restaurar a senha original do portal para o cliente. Notificar o cliente que tudo está finalizado.</p></div></div>
+  </div>
+</div>
+
+<!-- ======= SIMULADOR ======= -->
+<div class="page hidden" id="page-simulador">
+  <div class="sec-title">Simulador de Proposta</div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="sim-group"><label>Margem Disponível (R$)</label><input type="number" id="simMargem" value="1185.90" step="0.01" oninput="calcSim()"></div>
+      <div class="sim-group"><label>Parcelas</label>
+        <select id="simParcelas" onchange="calcSim()">
+          <option value="36">36x</option><option value="48">48x</option><option value="60">60x</option>
+          <option value="72">72x</option><option value="84">84x</option><option value="96" selected>96x</option>
+        </select>
+      </div>
+      <div class="sim-group"><label>Taxa a.m. (%)</label><input type="number" id="simTaxa" value="3.99" step="0.01" oninput="calcSim()"></div>
+      <div class="sim-group"><label>% Saque do Limite</label><input type="number" id="simSaque" value="70" step="1" oninput="calcSim()"></div>
+    </div>
+    <div class="card">
+      <div class="sim-result">
+        <div style="font-size:11px;color:var(--tm);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Valor Líquido Estimado</div>
+        <div class="big" id="simValor">R$ 0,00</div>
+        <div class="detail" id="simDetalhe"></div>
+      </div>
+      <div id="simProposta" style="margin-top:16px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:18px;position:relative">
+        <button class="copy-btn" onclick="copyProposta()">Copiar</button>
+        <div class="script-label label-green">Proposta para WhatsApp</div>
+        <pre id="simPropostaText" style="font-size:13px;color:var(--tx);line-height:1.8;white-space:pre-wrap;font-family:'DM Sans',sans-serif;margin-top:8px"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= SCRIPTS POR CANAL ======= -->
+<div class="page hidden" id="page-abordagem">
+  <div class="tabs">
+    <button class="tab active" onclick="showScriptTab('wpp-out')">WhatsApp Ativo</button>
+    <button class="tab" onclick="showScriptTab('tel-out')">Ligação Ativa</button>
+    <button class="tab" onclick="showScriptTab('wpp-in')">WhatsApp Inbound</button>
+    <button class="tab" onclick="showScriptTab('site-in')">Lead do Site</button>
+  </div>
+
+  <!-- WhatsApp Ativo -->
+  <div id="script-wpp-out">
+    <div class="sec-title">Abordagem — WhatsApp Ativo (Base Filtrada)</div>
+    <div class="script-block highlight" style="position:relative">
+      <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+      <span class="script-label label-green">Mensagem 1 — Abertura</span>
+      <div class="script-text">BOA TARDE <em>[NOME]</em>, aqui é a <em>[SEU NOME]</em> da SPCRED.
+
+Prometo que não liguei pra te cobrar e nem te vender nada — mas você já usou a sua margem do consignado público? Se já usou, essa ligação vai fazer sentido para você por que seu órgão liberou uma nova margem.
+
+Mas se não usou ainda, tudo bem, desculpe o incômodo e irei retirar seu número da nossa base.
+
+Gostaria de ouvir sobre a sua nova margem?</div>
+      <div class="script-note">⟶ Se o lead responder "SIM" ou demonstrar interesse, envie a Mensagem 2. Se disser "não", agradeça e remova da lista.</div>
+    </div>
+
+    <div class="script-block highlight" style="position:relative">
+      <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+      <span class="script-label label-blue">Mensagem 2 — Apresentação do Produto</span>
+      <div class="script-text">Trabalhamos exclusivamente com a margem consignada do cartão de benefício. Sem solicitar depósito antecipado e descontando direto da sua folha.
+
+Como se fosse o consignado tradicional mesmo, o dinheiro solicitado cai direto na sua conta-salário.
+
+Hoje você tem pré-aprovado R$<em>[VALOR]</em>, caso tenha interesse em sacar esse valor, posso te mandar uma proposta final no WhatsApp ou continuar por aqui mesmo, o que preferir.</div>
+    </div>
+
+    <div class="script-block info" style="position:relative">
+      <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+      <span class="script-label label-teal">Mensagem 3 — Educação + Confiança</span>
+      <div class="script-text">Antes de mais nada, deixa eu te explicar como funciona a margem do Cartão de Benefício.
+
+Hoje a SPCRED consegue disponibilizar esse limite para os servidores do <em>[ÓRGÃO]</em> fazendo de forma similar ao consignado tradicional.
+
+Para ficar mais fácil o entendimento, vou compartilhar um print de como aparece as suas margens no Portal do Consignado (você mesmo pode confirmar o que estou falando, ta bom?)</div>
+      <div class="script-note">⟶ Envie o print da margem do portal mostrando: consignado -0,91 (esgotado) e cartão benefício R$1.185,90 (100% livre)</div>
+    </div>
+
+    <div class="script-block info" style="position:relative">
+      <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+      <span class="script-label label-teal">Mensagem 4 — Explicação da Margem</span>
+      <div class="script-text">Veja comigo, você tem duas margens disponíveis no portal, sendo a primeira estando atualmente com um saldo negativo. Mas do cartão benefício está 100% disponível. Notícia boa né?
+
+O que eu sugiro pra você:
+NÃO pegar a margem toda, por que vai que acontece alguma emergência?</div>
+      <div class="script-note">⟶ Essa dica de "não pegar tudo" gera confiança enorme. O cliente percebe que você está cuidando dele, não vendendo.</div>
+    </div>
+
+    <div class="script-block success" style="position:relative">
+      <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+      <span class="script-label label-green">Mensagem 5 — Proposta + Taxa</span>
+      <div class="script-text">Com parcelas de R$<em>[VALOR PARCELA]</em> sendo descontadas diretamente do seu holerite (igual o consignado tradicional), eu consigo liberar hoje na sua conta-salário R$<em>[VALOR LÍQUIDO]</em>. Serão debitadas <em>[PARCELAS]</em> parcelas, como no consignado tradicional.
+
+Como é um limite extra, a taxa costuma ser um pouco maior que o consignado tradicional, mas a SPCRED hoje tem <strong>A MENOR TAXA do estado</strong>, e não somos nós quem estamos dizendo. Se você checar no portal o comparativo de taxas (vou te mandar um print), você vai localizar o nosso nome e a taxa de 3,99% ao lado.</div>
+      <div class="script-note">⟶ Envie o print do ranking de taxas da SEFAZ destacando SPCRED a 3,99%</div>
+    </div>
+
+    <div class="script-block highlight" style="position:relative">
+      <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+      <span class="script-label label-blue">Mensagem 6 — Kit de Confiança</span>
+      <div class="script-text">Se precisar confirmar os nossos dados, para não causar estranheza, segue:
+
+Nosso site: spcred.coop.br
+Nosso Instagram: spcred_oficial
+Nosso CNPJ: 07.651.495/0001-68
+
+https://www.reclameaqui.com.br/empresa/cooperativa-de-economia-e-credito-mutuo-dos-funcionarios-do-poder-judici/
+Verificados no Reclameaqui.</div>
+    </div>
+
+    <div class="script-block success" style="position:relative">
+      <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+      <span class="script-label label-green">Mensagem 7 — Diferencial Final</span>
+      <div class="script-text">A parte legal: NÃO emitimos cartão de crédito e não te enfiamos no rotativo. É saque do limite direto pra sua conta-salário com cobranças das parcelas direto em folha.</div>
+      <div class="script-note">⟶ Essa mensagem mata a objeção mais comum: "será que é cartão de crédito?" Deixe claro que NÃO É.</div>
+    </div>
+  </div>
+
+  <!-- Ligação Ativa -->
+  <div id="script-tel-out" class="hidden">
+    <div class="sec-title">Abordagem — Ligação Ativa (Cold Call)</div>
+    <div class="script-block highlight">
+      <span class="script-label label-blue">Abertura (primeiros 15 segundos)</span>
+      <div class="script-text">"Boa tarde <em>[NOME]</em>, aqui é a <em>[SEU NOME]</em> da SPCRED, tudo bem com você?
+
+Prometo que não liguei pra te cobrar e nem te vender nada — mas você já usou a sua margem do consignado público?"</div>
+      <div class="script-note"><strong>PAUSA.</strong> Espere a resposta. Se sim → continue. Se não → "tudo bem, desculpe o incômodo, vou retirar seu número da nossa base. Tenha um ótimo dia!"</div>
+    </div>
+    <div class="script-block info">
+      <span class="script-label label-teal">Se respondeu SIM (já usou a margem)</span>
+      <div class="script-text">"Perfeito, então essa ligação vai fazer sentido pra você. O que acontece é que o seu órgão liberou uma nova margem, diferente da do consignado. É a margem do cartão benefício — são 15% adicionais que estão separados dos 30% que você já usou.
+
+Hoje você tem um valor pré-aprovado. Posso te explicar rapidinho como funciona, ou prefere que eu mande os detalhes por WhatsApp?"</div>
+      <div class="script-note">⟶ A maioria vai preferir WhatsApp. Pegue o WhatsApp e migre o atendimento pra lá — é onde você tem os prints e as mensagens prontas.</div>
+    </div>
+    <div class="script-block warning">
+      <span class="script-label label-yellow">Regras da Ligação</span>
+      <div class="script-text">1. Máximo 2 minutos no telefone — objetivo é migrar pra WhatsApp
+2. NUNCA fale preço/taxa por telefone — isso é pra conversa no WhatsApp com prints
+3. Tom de voz: calmo, amigável, como quem está dando uma dica, não vendendo
+4. Se a pessoa estiver ocupada: "Sem problema! Posso te mandar um WhatsApp num horário melhor?"
+5. SEMPRE registre o horário que a pessoa prefere ser contatada</div>
+    </div>
+  </div>
+
+  <!-- WhatsApp Inbound -->
+  <div id="script-wpp-in" class="hidden">
+    <div class="sec-title">Atendimento — Lead Inbound (Veio Até Nós)</div>
+    <div class="script-block success">
+      <span class="script-label label-green">Regra de Ouro do Inbound</span>
+      <div class="script-text">Quando o lead vem até nós (site, WhatsApp, indicação), ele já tem interesse. O tom muda:
+→ Não precisa "vender" — precisa <strong>orientar e facilitar</strong>
+→ Responda RÁPIDO (< 5 minutos) — lead inbound esfria em minutos
+→ Pergunte o que ele já sabe sobre o produto
+→ Adapte a explicação ao nível de conhecimento dele</div>
+    </div>
+    <div class="script-block highlight" style="position:relative">
+      <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+      <span class="script-label label-blue">Mensagem 1 — Boas-Vindas</span>
+      <div class="script-text">Boa tarde <em>[NOME]</em> tudo bem?
+
+Prazer, meu nome é <em>[SEU NOME]</em>, sou Consultora da SPCRED e vou realizar o seu atendimento hoje.
+
+Vi que você demonstrou interesse no cartão benefício. Me conta: você já conhece como funciona ou prefere que eu te explique desde o início?</div>
+    </div>
+    <div class="script-block info">
+      <span class="script-label label-teal">Depois do primeiro contato</span>
+      <div class="script-text">⟶ Se já conhece: pule direto pra simulação e proposta
+⟶ Se não conhece: use as Mensagens 3 a 7 do WhatsApp Ativo (mesma sequência)
+⟶ Em ambos os casos: mande os prints da margem e do ranking de taxas
+
+A diferença do inbound é a VELOCIDADE. Esse lead está quente — não deixe esfriar.</div>
+    </div>
+  </div>
+
+  <!-- Lead do Site -->
+  <div id="script-site-in" class="hidden">
+    <div class="sec-title">Atendimento — Lead do Site (/emprestimo-ja)</div>
+    <div class="script-block success">
+      <span class="script-label label-green">Contexto</span>
+      <div class="script-text">O lead preencheu o formulário "Consulte seu limite disponível" no site. Ele já sabe o que quer — está comparando opções.
+
+<strong>Tempo de resposta ideal: menos de 3 minutos.</strong>
+Cada minuto que passa, a chance de conversão cai 10%.</div>
+    </div>
+    <div class="script-block highlight" style="position:relative">
+      <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+      <span class="script-label label-blue">Primeira Mensagem</span>
+      <div class="script-text">Olá <em>[NOME]</em>! Vi que você solicitou uma consulta de limite pelo nosso site.
+
+Meu nome é <em>[SEU NOME]</em>, sou consultora da SPCRED — cooperativa de crédito dos servidores públicos de SP.
+
+Pra eu verificar o seu limite disponível, você é servidor(a) de qual órgão?</div>
+      <div class="script-note">⟶ A pergunta sobre o órgão serve tanto pra qualificar quanto pra iniciar a conversa de forma consultiva. Depois, siga o fluxo normal de apresentação.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= FLUXO DE ATENDIMENTO ======= -->
+<div class="page hidden" id="page-fluxo">
+  <div class="sec-title">Fluxo Completo — Do Lead ao Fechamento</div>
+  <div class="step-item"><div class="step-num" style="background:var(--org);color:var(--or)">1</div><div class="step-content"><h4>Receber / Abordar o Lead</h4><p>Identificar a origem (site, WhatsApp, ligação, disparo). Se outbound: usar abertura consultiva. Se inbound: responder em < 5 min.</p></div></div>
+  <div class="step-item"><div class="step-num">2</div><div class="step-content"><h4>Qualificar</h4><p>É servidor estadual de SP? De qual órgão? Já usou a margem do consignado? Sabe o que é cartão benefício? Quanto precisa?</p></div></div>
+  <div class="step-item"><div class="step-num">3</div><div class="step-content"><h4>Educar</h4><p>Explicar a margem separada de 15%. Enviar print da margem no portal. Explicar que NÃO é cartão de crédito. Mostrar que é cooperativa.</p></div></div>
+  <div class="step-item"><div class="step-num">4</div><div class="step-content"><h4>Gerar Confiança</h4><p>Enviar ranking de taxas SEFAZ. Enviar dados da empresa (site, CNPJ, Instagram, Reclame Aqui). Sugerir NÃO pegar o valor total. Mostrar que se importa.</p></div></div>
+  <div class="step-item"><div class="step-num">5</div><div class="step-content"><h4>Apresentar Proposta</h4><p>Usar o simulador do painel. Enviar proposta formatada via WhatsApp. Ser transparente com taxa, parcela e valor líquido.</p></div></div>
+  <div class="step-item"><div class="step-num">6</div><div class="step-content"><h4>Contornar Objeções</h4><p>Usar a aba de Objeções. Principais: "é cartão de crédito?", "taxa alta", "vou pensar", "não confio". Cada uma tem resposta pronta.</p></div></div>
+  <div class="step-item"><div class="step-num" style="background:var(--gng);color:var(--gn)">7</div><div class="step-content"><h4>Fechar</h4><p>Coletar documentos. Explicar processo de assinatura. Se refi: seguir fluxo específico de 14 passos.</p></div></div>
+  <div class="step-item"><div class="step-num">8</div><div class="step-content"><h4>Pós-venda</h4><p>Confirmar depósito. Apresentar benefícios cooperado. Pedir indicação. Follow-up 7 dias. Follow-up 30 dias.</p></div></div>
+</div>
+
+<!-- ======= OBJEÇÕES ======= -->
+<div class="page hidden" id="page-objecoes">
+  <div class="sec-title">Contorno de Objeções — Clique para Expandir</div>
+
+  <div class="objection" onclick="this.classList.toggle('open')">
+    <div class="objection-header">"Isso é cartão de crédito? Não quero cartão."<span class="objection-tag" style="background:var(--rdg);color:var(--rd)">Muito Comum</span></div>
+    <div class="objection-body">Entendo sua preocupação, <em>[NOME]</em>. E a resposta é NÃO — nós não emitimos cartão de crédito e não te colocamos em nenhum rotativo. O que fazemos é liberar o saque de 70% do seu limite direto na sua conta-salário, com as parcelas descontadas em folha, igualzinho o consignado que você já conhece. A única diferença é que usa uma margem diferente — a do cartão benefício, que provavelmente está livre.
+    </div>
+  </div>
+
+  <div class="objection" onclick="this.classList.toggle('open')">
+    <div class="objection-header">"A taxa de 3,99% é alta"<span class="objection-tag" style="background:var(--ylg);color:var(--yl)">Comum</span></div>
+    <div class="objection-body">Entendo, e é natural comparar com o consignado tradicional que tem taxas menores. Mas preciso te explicar uma coisa: a margem do cartão benefício é uma margem ADICIONAL — ela existe justamente pra quem já esgotou o consignado. As taxas são naturalmente um pouco maiores em todo o mercado. A questão é: dentro dessa modalidade, a SPCRED tem a MENOR taxa do estado de SP — 3,99%. O segundo colocado já cobra 4,13%. Posso te mandar o print do ranking oficial da SEFAZ pra você ver com seus próprios olhos.
+    </div>
+  </div>
+
+  <div class="objection" onclick="this.classList.toggle('open')">
+    <div class="objection-header">"Nunca ouvi falar da SPCRED"<span class="objection-tag" style="background:var(--ylg);color:var(--yl)">Comum</span></div>
+    <div class="objection-body">Normal, a gente não é banco grande com propaganda na TV. Somos uma cooperativa de crédito dos servidores públicos do Estado de SP, fiscalizada pelo Banco Central. Nosso CNPJ é 07.651.495/0001-68, nosso site é spcred.coop.br, e estamos verificados no Reclame Aqui. O legal de ser cooperativa é que você não é cliente — você é dono. Não tem acionista lucrando com seus juros. Quer que eu mande os links pra você checar?
+    </div>
+  </div>
+
+  <div class="objection" onclick="this.classList.toggle('open')">
+    <div class="objection-header">"Vou pensar / preciso falar com meu marido/esposa"<span class="objection-tag" style="background:var(--org);color:var(--or)">Frequente</span></div>
+    <div class="objection-body">Claro, faz total sentido conversar em casa. Uma dica: mostra pra ele/ela o print do ranking de taxas e o nosso CNPJ no site do Banco Central. Isso dá segurança. Posso te mandar esses links agora pra facilitar a conversa? E assim que vocês decidirem, me chama aqui que eu monto a proposta certinha. Sem pressa nenhuma — o limite fica disponível enquanto a margem estiver livre.
+    </div>
+  </div>
+
+  <div class="objection" onclick="this.classList.toggle('open')">
+    <div class="objection-header">"Já tenho proposta de outro banco"<span class="objection-tag" style="background:var(--acg);color:var(--ac)">Oportunidade</span></div>
+    <div class="objection-body">Ótimo, então você já está comparando — isso é muito inteligente. Me fala: qual a taxa que te ofereceram? Porque no ranking oficial da SEFAZ, a SPCRED tem 3,99% — a menor do estado. Se a proposta que você recebeu for de qualquer outro banco da lista, a nossa taxa é melhor. E ainda tem a vantagem de ser cooperativa: sem cartão de crédito rotativo, sem pegadinha. Quer que eu faça uma simulação com as mesmas condições pra você comparar?
+    </div>
+  </div>
+
+  <div class="objection" onclick="this.classList.toggle('open')">
+    <div class="objection-header">"Preciso pagar depósito antecipado?"<span class="objection-tag" style="background:var(--rdg);color:var(--rd)">Alerta de Golpe</span></div>
+    <div class="objection-body">De jeito nenhum. NUNCA pedimos depósito antecipado, taxa de cadastro, ou qualquer pagamento prévio. Se alguém pediu isso, é golpe. Na SPCRED, o dinheiro cai na SUA conta-salário e as parcelas são descontadas da SUA folha. Simples assim. Inclusive, desconfie de qualquer empresa que peça pagamento antes de liberar crédito — isso não existe no consignado.
+    </div>
+  </div>
+
+  <div class="objection" onclick="this.classList.toggle('open')">
+    <div class="objection-header">"Não quero me endividar mais"<span class="objection-tag" style="background:var(--gng);color:var(--gn)">Educação</span></div>
+    <div class="objection-body">Respeito muito essa posição, e inclusive concordo — ninguém deveria se endividar além do necessário. Por isso mesmo sugeri que você NÃO use a margem toda. Mas veja: se você tem dívidas com juros altos (cartão de crédito, cheque especial, crédito pessoal), pode fazer sentido usar essa margem de 3,99% pra quitar essas dívidas caras. É trocar dívida de 14% por dívida de 3,99%. Quer que a gente faça essa conta juntos?
+    </div>
+  </div>
+</div>
+
+<!-- ======= TOOLKIT ======= -->
+<div class="page hidden" id="page-toolkit">
+  <div class="sec-title">Kit de Confiança — Materiais de Envio</div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Dados Oficiais</h3>
+      <div class="script-block" style="margin-top:12px;position:relative">
+        <button class="copy-btn" onclick="copyBlock(this)">Copiar</button>
+        <div class="script-text">Nosso site: spcred.coop.br
+Nosso Instagram: @spcred_oficial
+Nosso CNPJ: 07.651.495/0001-68
+Reclame Aqui: reclameaqui.com.br/empresa/cooperativa-de-economia-e-credito-mutuo-dos-funcionarios-do-poder-judici/
+Fiscalizada pelo Banco Central do Brasil</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Quando Enviar Cada Material</h3>
+      <div style="margin-top:12px;font-size:13px;color:var(--tm);line-height:1.8">
+        <strong style="color:var(--gn)">Print da Margem:</strong> logo após explicar o que é cartão benefício<br>
+        <strong style="color:var(--ac)">Print do Ranking de Taxas:</strong> junto com a proposta de valor<br>
+        <strong style="color:var(--pp)">Dados da Empresa:</strong> quando o cliente demonstrar desconfiança<br>
+        <strong style="color:var(--or)">Link Reclame Aqui:</strong> como último recurso de confiança<br>
+        <strong style="color:var(--tl)">Proposta Formatada:</strong> após o cliente demonstrar interesse no valor
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:24px">Frases que Geram Confiança</div>
+  <div class="grid g2">
+    <div class="script-block success"><div class="script-text">"Não somos nós quem estamos dizendo — é o ranking oficial da SEFAZ."</div></div>
+    <div class="script-block success"><div class="script-text">"Sugiro NÃO pegar a margem toda — vai que acontece uma emergência."</div></div>
+    <div class="script-block success"><div class="script-text">"Você mesmo pode confirmar no portal do consignado."</div></div>
+    <div class="script-block success"><div class="script-text">"Não emitimos cartão de crédito. Não te enfiamos no rotativo."</div></div>
+    <div class="script-block success"><div class="script-text">"Você não é cliente — é dono. Cooperativa funciona assim."</div></div>
+    <div class="script-block success"><div class="script-text">"Se precisar confirmar nossos dados, segue tudo aqui."</div></div>
+  </div>
+</div>
+
+<!-- ======= CHECKLIST ======= -->
+<div class="page hidden" id="page-checklist">
+  <div class="sec-title">Checklist Diário do Vendedor</div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>08:30</strong> — Revisar pipeline: quantos leads abertos, quantos precisam de follow-up</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>09:00</strong> — Disparar 20 mensagens WhatsApp para base filtrada (TJ-SP ou SPPREV)</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>09:30</strong> — Fazer 10 ligações ativas (cold call consultivo)</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>10:00</strong> — Responder todos os leads inbound pendentes (site + WhatsApp)</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>10:30</strong> — Follow-up leads do dia anterior que não responderam</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>11:00</strong> — Montar propostas para leads quentes</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>14:00</strong> — Segunda rodada de disparos WhatsApp (20 mensagens)</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>14:30</strong> — Ligações ativas (10 ligações)</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>15:30</strong> — Atender retornos e fechar propostas pendentes</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>16:30</strong> — Pós-venda: confirmar depósitos e pedir indicações</div></div>
+  <div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box"></div><div class="check-text"><strong>17:00</strong> — Registrar números do dia: abordagens, respostas, propostas, fechamentos</div></div>
+</div>
+
+<!-- ======= NEUROCIÊNCIA ======= -->
+<div class="page hidden" id="page-neuro">
+  <div class="sec-title">Neurociência Aplicada à Venda Consultiva</div>
+
+  <div class="grid g2">
+    <div class="card" style="border-left:3px solid var(--pp)">
+      <h3>Efeito da Escassez</h3>
+      <p>"A margem está livre AGORA, mas quando outros servidores descobrirem..." — Cria urgência sem pressão. O servidor percebe que a oportunidade é limitada.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--tl)">
+      <h3>Prova Social</h3>
+      <p>"Já ajudamos centenas de servidores do TJ-SP" — O cérebro confia mais quando outros já fizeram. Mencione o órgão específico do lead.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--gn)">
+      <h3>Reciprocidade Invertida</h3>
+      <p>"Sugiro NÃO pegar tudo" — Quando você aconselha CONTRA seu interesse, o cliente confia mais. É contraintuitivo, mas vende mais.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--or)">
+      <h3>Autoridade por Transparência</h3>
+      <p>"Não somos nós dizendo, é o ranking da SEFAZ" — Usar fonte externa como autoridade. O vendedor vira FACILITADOR de informação, não vendedor.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--ac)">
+      <h3>Autonomia do Cliente</h3>
+      <p>"Você mesmo pode confirmar no portal" — Deixar o cliente verificar por conta própria elimina a sensação de estar sendo manipulado.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--rd)">
+      <h3>Enquadramento de Dor</h3>
+      <p>Não venda "crédito". Venda "a solução pra quando a margem do consignado acabou". A dor de não ter opção é o gatilho. O cartão benefício é o alívio.</p>
+    </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:24px">Os 5 Princípios da Abordagem DIB</div>
+  <div class="script-block info">
+    <div class="script-text" style="font-size:15px">
+<strong>1. Eu não vendo, eu ajudo.</strong>
+Toda conversa começa com "não liguei pra vender". Isso desarma o lead imediatamente.
+
+<strong>2. Eu provo, não prometo.</strong>
+Prints do portal, ranking da SEFAZ, CNPJ, Reclame Aqui. Tudo verificável.
+
+<strong>3. Eu oriento contra meu interesse.</strong>
+"Não pegue tudo", "guarde uma reserva". Isso gera confiança inabalável.
+
+<strong>4. Eu personalizo.</strong>
+Chamo pelo nome, menciono o órgão, mostro a margem DELE. Nunca é genérico.
+
+<strong>5. Eu respeito o tempo.</strong>
+Se não quer, agradeço e saio. Sem insistência. Isso constrói reputação.</div>
+  </div>
+</div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+    item.classList.add('active');
+    const page = item.dataset.page;
+    document.getElementById('page-' + page).classList.remove('hidden');
+    document.getElementById('pageTitle').textContent = item.textContent.trim();
+  });
+});
+
+// Operation tabs
+function showOpTab(tab) {
+  document.querySelectorAll('#page-operacoes .tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('op-novo').classList.toggle('hidden', tab !== 'novo');
+  document.getElementById('op-refi').classList.toggle('hidden', tab !== 'refi');
+}
+
+// Script channel tabs
+function showScriptTab(tab) {
+  document.querySelectorAll('#page-abordagem .tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  ['wpp-out','tel-out','wpp-in','site-in'].forEach(id => {
+    document.getElementById('script-' + id).classList.toggle('hidden', id !== tab);
+  });
+}
+
+// Simulator
+function calcSim() {
+  const margem = parseFloat(document.getElementById('simMargem').value) || 0;
+  const n = parseInt(document.getElementById('simParcelas').value);
+  const taxa = (parseFloat(document.getElementById('simTaxa').value) || 0) / 100;
+  const saque = (parseFloat(document.getElementById('simSaque').value) || 70) / 100;
+
+  // PV = PMT * [(1-(1+i)^-n) / i]
+  if (taxa <= 0 || n <= 0 || margem <= 0) return;
+  const fator = (1 - Math.pow(1 + taxa, -n)) / taxa;
+  const limiteTotal = margem * fator;
+  const valorLiquido = limiteTotal * saque;
+
+  document.getElementById('simValor').textContent = 'R$ ' + valorLiquido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  document.getElementById('simDetalhe').textContent = `Limite total: R$ ${limiteTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})} | Saque ${(saque*100).toFixed(0)}%: R$ ${valorLiquido.toLocaleString('pt-BR',{minimumFractionDigits:2})} | Parcela: R$ ${margem.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+
+  const proposta = `Parcelas: ${n}x
+Taxa de Juros: ${document.getElementById('simTaxa').value}% a.m.
+Primeiro Desconto: Próxima folha
+Valor da Parcela: R$ ${margem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+Valor Líquido: R$ ${valorLiquido.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+
+*A menor taxa do Estado de São Paulo*
+*Desconto direto em folha, sem cartão de crédito*`;
+
+  document.getElementById('simPropostaText').textContent = proposta;
+}
+
+calcSim();
+
+// Copy functions
+function copyBlock(btn) {
+  const block = btn.closest('.script-block') || btn.closest('div');
+  const textEl = block.querySelector('.script-text') || block.querySelector('pre');
+  const text = textEl.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 1500);
+  });
+}
+
+function copyProposta() {
+  const text = document.getElementById('simPropostaText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('#simProposta .copy-btn');
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 1500);
+  });
+}
+</script>
+</body>
+</html>
