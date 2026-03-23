@@ -40,6 +40,8 @@
 .so{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10}
 @media(max-width:900px){.side{display:none}.side.open{display:block;width:280px;position:fixed;top:0;left:0;height:100vh}.so.open{display:block}.main{margin-left:0}.mb{display:block}.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.kpi-strip{grid-template-columns:1fr 1fr}.ct{padding:20px 16px}.hd{padding:12px 16px}}
 .hidden{display:none}
+.notif-item:hover{background:var(--s2)}.notif-item.read{opacity:.5}
+.client-tabs{display:flex;gap:4px;flex-wrap:wrap}.client-tab{padding:5px 12px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--tm);cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:.15s}.client-tab:hover{border-color:var(--ac)}.client-tab.active{background:var(--acg);border-color:var(--ac);color:var(--ac);font-weight:500}.client-tab .x{color:var(--th);font-size:14px;margin-left:2px}.client-tab .x:hover{color:var(--rd)}
 </style>
 </head>
 <body>
@@ -66,7 +68,26 @@
 <div class="ni" data-p="bemestar">♡ Bem-Estar</div>
 </nav>
 <div class="main">
-<div class="hd"><div style="display:flex;align-items:center;gap:12px"><button class="mb" onclick="om()">☰</button><h2 id="pt">Painel Principal</h2></div><span class="bg">Treinamento</span></div>
+<div class="hd"><div style="display:flex;align-items:center;gap:12px"><button class="mb" onclick="om()">☰</button><h2 id="pt">Painel Principal</h2></div>
+<div style="display:flex;align-items:center;gap:12px">
+<span class="bg">Treinamento</span>
+<div style="position:relative">
+<button id="notifBtn" onclick="toggleNotif()" style="background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--tx);position:relative;line-height:1">🔔<span id="notifBadge" style="position:absolute;top:-4px;right:-4px;background:var(--rd);color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center">3</span></button>
+<div id="notifPanel" class="hidden" style="position:absolute;top:42px;right:0;width:320px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20;overflow:hidden">
+<div style="padding:14px 16px;border-bottom:1px solid var(--bd);font-size:13px;font-weight:700">Novidades da Operação</div>
+<div class="notif-item" onclick="markRead(this)" style="padding:12px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:.15s">
+<div style="display:flex;align-items:flex-start;gap:10px"><span style="font-size:16px">🎧</span><div><div style="font-size:13px;font-weight:500;margin-bottom:3px">Headsets disponíveis</div><div style="font-size:12px;color:var(--tm);line-height:1.4">Agora tem headset para os consultores não se incomodarem com o ambiente externo. Peça o seu!</div><div style="font-size:10px;color:var(--th);margin-top:4px">Hoje</div></div></div>
+</div>
+<div class="notif-item" onclick="markRead(this)" style="padding:12px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:.15s">
+<div style="display:flex;align-items:flex-start;gap:10px"><span style="font-size:16px">💻</span><div><div style="font-size:13px;font-weight:500;margin-bottom:3px">Central de vendas pronta</div><div style="font-size:12px;color:var(--tm);line-height:1.4">Central de vendas montada para os consultores terem as ferramentas necessárias para vender. Aproveitem!</div><div style="font-size:10px;color:var(--th);margin-top:4px">Hoje</div></div></div>
+</div>
+<div class="notif-item" onclick="markRead(this)" style="padding:12px 16px;cursor:pointer;transition:.15s">
+<div style="display:flex;align-items:flex-start;gap:10px"><span style="font-size:16px">🎯</span><div><div style="font-size:13px;font-weight:500;margin-bottom:3px">Meta quase lá!</div><div style="font-size:12px;color:var(--tm);line-height:1.4">Falta muito pouco para alcançarmos a nossa meta desse mês. Bora fechar forte!</div><div style="font-size:10px;color:var(--th);margin-top:4px">Hoje</div></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div class="ct">
 
 <!-- HOME -->
@@ -138,9 +159,9 @@ A mensalidade dá acesso a TODOS os benefícios. O 1º mês é grátis.
 <div class="sc">Novo Contrato — Checklist</div>
 <div class="crm">Atualize o CRM a cada etapa.</div>
 <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-<span style="font-size:12px;color:var(--tm)">Cliente:</span>
-<div id="nc-clients" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-<button onclick="addClient('nc')" style="padding:6px 12px;background:var(--acg);border:1px solid rgba(59,130,246,.3);border-radius:6px;color:var(--ac);font-size:12px;cursor:pointer;font-family:inherit">+ Novo cliente</button>
+<span style="font-size:12px;color:var(--tm)">Clientes em processo:</span>
+<div id="nc-clients" class="client-tabs"></div>
+<button onclick="addClient('nc')" style="padding:5px 12px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tm);font-size:12px;cursor:pointer;font-family:inherit">+ Novo</button>
 </div>
 <button class="rb" onclick="resetC('nc')">Limpar etapas</button>
 <div id="nc">
@@ -161,9 +182,9 @@ A mensalidade dá acesso a TODOS os benefícios. O 1º mês é grátis.
 <div class="sb wn"><span class="sl sl-y">Operação de até 10 dias</span><div class="st">Exige transparência total com o cliente. Envie áudios explicando cada passo. Acompanhamento DIÁRIO. A confiança do cliente é tudo.</div></div>
 <div class="crm">Atualize o CRM a CADA etapa. Acompanhamento DIÁRIO com o cliente.</div>
 <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-<span style="font-size:12px;color:var(--tm)">Cliente:</span>
-<div id="rc-clients" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-<button onclick="addClient('rc')" style="padding:6px 12px;background:var(--acg);border:1px solid rgba(59,130,246,.3);border-radius:6px;color:var(--ac);font-size:12px;cursor:pointer;font-family:inherit">+ Novo cliente</button>
+<span style="font-size:12px;color:var(--tm)">Clientes em processo:</span>
+<div id="rc-clients" class="client-tabs"></div>
+<button onclick="addClient('rc')" style="padding:5px 12px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tm);font-size:12px;cursor:pointer;font-family:inherit">+ Novo</button>
 </div>
 <button class="rb" onclick="resetC('rc')">Limpar etapas</button>
 <div id="rc">
@@ -592,7 +613,7 @@ function cm(){document.getElementById('sv').classList.remove('open');document.ge
 document.querySelectorAll('.ni').forEach(function(i){i.addEventListener('click',function(){document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('active')});document.querySelectorAll('.page').forEach(function(p){p.classList.add('hidden')});i.classList.add('active');document.getElementById('page-'+i.dataset.p).classList.remove('hidden');document.getElementById('pt').textContent=i.textContent.trim();cm();window.scrollTo(0,0)})});
 function goTo(p){document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('active');if(n.dataset.p===p)n.classList.add('active')});document.querySelectorAll('.page').forEach(function(pg){pg.classList.add('hidden')});document.getElementById('page-'+p).classList.remove('hidden');document.getElementById('pt').textContent=document.querySelector('[data-p="'+p+'"]').textContent.trim();window.scrollTo(0,0)}
 function sT(b,id){b.closest('.page').querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});b.classList.add('active');b.closest('.page').querySelectorAll('[id^="s"]').forEach(function(t){if(t.id.match(/^s\d$/))t.classList.add('hidden')});document.getElementById(id).classList.remove('hidden')}
-function resetC(id){document.getElementById(id).querySelectorAll('.oc').forEach(function(c){c.classList.remove('done')})}
+function resetC(id){document.getElementById(id).querySelectorAll('.oc').forEach(function(c){c.classList.remove('done')});var prefix=id;saveClientState(prefix)}
 function cpB(btn){var b=btn.closest('.sb');var t=b&&b.querySelector('.st');if(!t)return;navigator.clipboard.writeText(t.textContent).then(function(){btn.textContent='Copiado!';setTimeout(function(){btn.textContent='Copiar'},1500)})}
 function sN(id){try{localStorage.setItem(id,document.getElementById(id).value)}catch(e){}}
 function lN(id){try{var v=localStorage.getItem(id);if(v)document.getElementById(id).value=v}catch(e){}}
@@ -617,44 +638,96 @@ function renderNotes(){
 }
 renderNotes();
 
-// Client tracking for operations (max 3)
+// Client tracking for operations (max 3, with per-client checklist state)
+var activeClient={nc:null,rc:null};
+
 function addClient(prefix){
-  var container=document.getElementById(prefix+'-clients');
-  var current=container.querySelectorAll('.client-tag');
-  if(current.length>=3){alert('Máximo de 3 clientes em processo ao mesmo tempo.');return}
+  var data=JSON.parse(localStorage.getItem(prefix+'_clients')||'{}');
+  if(Object.keys(data).length>=3){alert('Máximo de 3 clientes em processo ao mesmo tempo.');return}
   var name=prompt('Nome do cliente:');if(!name||!name.trim())return;
   name=name.trim();
-  var tag=document.createElement('span');
-  tag.className='client-tag';
-  tag.style.cssText='display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--acg);border:1px solid rgba(59,130,246,.3);border-radius:6px;font-size:12px;color:var(--ac);font-weight:500';
-  tag.innerHTML=name+'<span onclick="event.stopPropagation();removeClient(this,\''+prefix+'\')" style="cursor:pointer;color:var(--rd);font-size:14px;margin-left:4px" title="Encerrar processo">×</span>';
-  container.appendChild(tag);
-  saveClients(prefix);
+  if(data[name]){alert('Já existe um cliente com esse nome.');return}
+  var checks=document.getElementById(prefix).querySelectorAll('.oc');
+  var state=[];checks.forEach(function(){state.push(false)});
+  data[name]=state;
+  localStorage.setItem(prefix+'_clients',JSON.stringify(data));
+  activeClient[prefix]=name;
+  renderClientTabs(prefix);
+  loadClientState(prefix,name);
 }
-function removeClient(el,prefix){
-  if(confirm('Encerrar o processo deste cliente?\n\nLembre-se de atualizar o status no CRM!')){
-    el.parentElement.remove();
-    saveClients(prefix);
-    alert('Processo encerrado. Atualize o CRM com o resultado final da negociação.');
+
+function removeClient(prefix,name){
+  if(confirm('Encerrar o processo de '+name+'?\n\nLembre-se de ATUALIZAR O CRM com o resultado final!')){
+    var data=JSON.parse(localStorage.getItem(prefix+'_clients')||'{}');
+    delete data[name];
+    localStorage.setItem(prefix+'_clients',JSON.stringify(data));
+    var keys=Object.keys(data);
+    activeClient[prefix]=keys.length?keys[0]:null;
+    renderClientTabs(prefix);
+    if(activeClient[prefix])loadClientState(prefix,activeClient[prefix]);
+    else resetC(prefix);
+    alert('Processo de '+name+' encerrado.\n\nAtualize o CRM com o resultado final da negociação.');
   }
 }
-function saveClients(prefix){
-  var tags=document.getElementById(prefix+'-clients').querySelectorAll('.client-tag');
-  var names=[];tags.forEach(function(t){names.push(t.textContent.replace('×','').trim())});
-  localStorage.setItem(prefix+'_clients',JSON.stringify(names));
+
+function switchClient(prefix,name){
+  saveClientState(prefix);
+  activeClient[prefix]=name;
+  renderClientTabs(prefix);
+  loadClientState(prefix,name);
 }
-function loadClients(prefix){
-  var names=JSON.parse(localStorage.getItem(prefix+'_clients')||'[]');
-  var container=document.getElementById(prefix+'-clients');
-  names.forEach(function(name){
-    var tag=document.createElement('span');
-    tag.className='client-tag';
-    tag.style.cssText='display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--acg);border:1px solid rgba(59,130,246,.3);border-radius:6px;font-size:12px;color:var(--ac);font-weight:500';
-    tag.innerHTML=name+'<span onclick="event.stopPropagation();removeClient(this,\''+prefix+'\')" style="cursor:pointer;color:var(--rd);font-size:14px;margin-left:4px" title="Encerrar processo">×</span>';
-    container.appendChild(tag);
+
+function saveClientState(prefix){
+  var name=activeClient[prefix];if(!name)return;
+  var data=JSON.parse(localStorage.getItem(prefix+'_clients')||'{}');
+  var checks=document.getElementById(prefix).querySelectorAll('.oc');
+  var state=[];checks.forEach(function(c){state.push(c.classList.contains('done'))});
+  data[name]=state;
+  localStorage.setItem(prefix+'_clients',JSON.stringify(data));
+}
+
+function loadClientState(prefix,name){
+  var data=JSON.parse(localStorage.getItem(prefix+'_clients')||'{}');
+  var state=data[name]||[];
+  var checks=document.getElementById(prefix).querySelectorAll('.oc');
+  checks.forEach(function(c,i){
+    if(state[i])c.classList.add('done');else c.classList.remove('done');
   });
 }
-loadClients('nc');loadClients('rc');
+
+function renderClientTabs(prefix){
+  var data=JSON.parse(localStorage.getItem(prefix+'_clients')||'{}');
+  var container=document.getElementById(prefix+'-clients');
+  container.innerHTML='';
+  Object.keys(data).forEach(function(name){
+    var isActive=activeClient[prefix]===name;
+    var tab=document.createElement('button');
+    tab.className='client-tab'+(isActive?' active':'');
+    tab.innerHTML=name+'<span class="x" onclick="event.stopPropagation();removeClient(\''+prefix+'\',\''+name.replace(/'/g,"\\'")+'\')">×</span>';
+    tab.onclick=function(e){if(e.target.classList.contains('x'))return;switchClient(prefix,name)};
+    container.appendChild(tab);
+  });
+}
+
+// Auto-save on check toggle
+document.querySelectorAll('#nc .oc, #rc .oc').forEach(function(el){
+  el.addEventListener('click',function(){
+    var prefix=this.closest('#nc')?'nc':'rc';
+    setTimeout(function(){saveClientState(prefix)},50);
+  });
+});
+
+// Init clients
+renderClientTabs('nc');renderClientTabs('rc');
+var ncData=JSON.parse(localStorage.getItem('nc_clients')||'{}');
+var ncKeys=Object.keys(ncData);if(ncKeys.length){activeClient.nc=ncKeys[0];loadClientState('nc',ncKeys[0])}
+var rcData=JSON.parse(localStorage.getItem('rc_clients')||'{}');
+var rcKeys=Object.keys(rcData);if(rcKeys.length){activeClient.rc=rcKeys[0];loadClientState('rc',rcKeys[0])}
+
+// Notifications
+function toggleNotif(){document.getElementById('notifPanel').classList.toggle('hidden')}
+document.addEventListener('click',function(e){if(!e.target.closest('#notifBtn')&&!e.target.closest('#notifPanel'))document.getElementById('notifPanel').classList.add('hidden')});
+function markRead(el){el.classList.add('read');var unread=document.querySelectorAll('.notif-item:not(.read)').length;var badge=document.getElementById('notifBadge');badge.textContent=unread;if(!unread)badge.style.display='none'}
 
 // Breathing exercise
 var breathRunning=false;
@@ -685,8 +758,35 @@ function sendChat(){
   try{var h=localStorage.getItem('chatHist')||'';localStorage.setItem('chatHist',h+bubble)}catch(e){}
   // Bot response after 1.5s
   setTimeout(function(){
-    var resps=['Entendo. Tá tudo bem sentir isso.','Força. Você tá fazendo um ótimo trabalho.','Um passo de cada vez. Respira.','Isso vai passar. Você já superou coisa pior.','Tá difícil, mas você não tá sozinha.','Desabafa mesmo. Faz bem.','Amanhã é um dia novo. Hoje você fez o que podia.'];
-    var r=resps[Math.floor(Math.random()*resps.length)];
+    var chatCount=parseInt(localStorage.getItem('chatMsgCount')||'0')+1;
+    localStorage.setItem('chatMsgCount',chatCount.toString());
+    var low=msg.toLowerCase();
+    var r='';
+    // Context-aware responses
+    if(low.match(/xing|gritar|grosso|grosseir|educa|maltrat|ofend|babac/)){
+      var resps=['Que situação chata. Mas lembra: essa pessoa não te conhece. A raiva dela não é sobre você — é sobre a vida dela. Você tava fazendo seu trabalho.','Ninguém merece ser tratado assim. Respira fundo, toma uma água, e lembra que a próxima pessoa pode ser aquela que vai fechar com você e te agradecer.','Isso dói, eu sei. Mas pensa comigo: quantas pessoas você já ajudou que ficaram genuinamente agradecidas? Essas são as que importam.'];
+      r=resps[Math.floor(Math.random()*resps.length)];
+    }else if(low.match(/cans|exaust|esgot|não aguent|demais|sobrecarreg/)){
+      var resps=['Você tá se sentindo sobrecarregado(a), e isso é válido. Já parou hoje pra respirar? Tenta o exercício 4-7-8 aqui em cima — 60 segundos e já muda o estado.','Quando bate o cansaço assim, é sinal de que você tá se dedicando. Mas cuidar de você também é parte do trabalho. O que acha de dar uma pausa de 5 minutos agora?','Tá pesado, eu entendo. Uma coisa que ajuda: olha pra trás e vê o quanto você já vendeu. Você é capaz. Mas até os capazes precisam descansar.'];
+      r=resps[Math.floor(Math.random()*resps.length)];
+    }else if(low.match(/perd|não fechou|escapou|quase|desist|frustrad/)){
+      var resps=['Perder uma venda quase fechada é frustrante demais. Mas me diz: você fez o seu melhor? Mandou os prints, contornou as objeções? Se sim, você fez sua parte. O resultado nem sempre depende só de nós.','Essa dói, eu sei. Mas pensa: se ele não fechou hoje, pode fechar em 30 dias. A margem continua lá. Manda uma mensagem de retomada daqui umas semanas.','A venda que escapou ensina mais que a que fechou fácil. O que você faria diferente? Pensa nisso, ajusta, e a próxima vai ser sua.'];
+      r=resps[Math.floor(Math.random()*resps.length)];
+    }else if(low.match(/feliz|fechei|vendi|consegui|uhuu|boa|show|massa/)){
+      var resps=['ISSO AÍ! Você merece essa vitória! Cada venda é uma família que você ajudou a ter acesso a crédito justo. Celebra isso!','Parabéns! Esse resultado é fruto do seu esforço. Já pediu indicação pro cliente? Aproveita que ele tá feliz!','Que notícia boa! Anota o que funcionou nessa venda — o que você disse, como conduziu. Isso vira seu playbook pessoal.'];
+      r=resps[Math.floor(Math.random()*resps.length)];
+    }else if(low.match(/medo|insegur|não sei se consigo|duvid|será que/)){
+      var resps=['É normal sentir insegurança. Todo vendedor sente — inclusive os melhores. O que diferencia é continuar mesmo com o medo. E você tá aqui, continuando.','A dúvida faz parte. Mas olha os fatos: vocês venderam R$500 mil em 45 dias. Isso não é sorte, é competência. A sua competência.','Quando a insegurança bater, volta aqui no painel e relê os scripts. Ter o processo na mão dá segurança. Você sabe o que falar, sabe como ajudar.'];
+      r=resps[Math.floor(Math.random()*resps.length)];
+    }else{
+      var general=['Entendo. Tá tudo bem sentir isso. Quer me contar mais sobre o que aconteceu?','Obrigado por compartilhar. Às vezes só colocar pra fora já alivia. Como tá se sentindo agora?','Tô aqui pra te ouvir. O que mais tá pesando hoje?','Faz parte do processo. Cada dia é diferente, e amanhã pode ser o melhor dia de vendas da sua vida.','Lembra: você não tá sozinha nessa. A equipe toda passa pelas mesmas coisas. Forças!','Respira. Você fez o que podia hoje. Amanhã é um recomeço.','Me conta mais. O que aconteceu?','Isso vai passar. Você já superou coisas piores e saiu mais forte. Essa não vai ser diferente.'];
+      r=general[Math.floor(Math.random()*general.length)];
+    }
+    // Follow-up questions every 3 messages
+    if(chatCount%3===0){
+      var followups=['\n\nO que te faria se sentir melhor agora?','Quer fazer o exercício de respiração? Tá aqui em cima.','Se pudesse mudar uma coisa no seu dia hoje, o que seria?','O que te motivou a trabalhar com vendas? Lembra disso quando bater o cansaço.'];
+      r+=followups[Math.floor(Math.random()*followups.length)];
+    }
     var rb='<div style="display:flex;justify-content:flex-start;margin-bottom:8px"><div style="background:var(--s3);border:1px solid var(--bd);border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:80%;font-size:13px;line-height:1.5"><span style="color:var(--tl)">'+r+'</span><div style="font-size:10px;color:var(--th);margin-top:4px">DIB Care</div></div></div>';
     box.innerHTML+=rb;box.scrollTop=box.scrollHeight;
     try{var h=localStorage.getItem('chatHist')||'';localStorage.setItem('chatHist',h+rb)}catch(e){}
