@@ -54,7 +54,7 @@
 <div class="ns">Produto</div>
 <div class="ni" data-p="produto">◆ Conheça o Produto</div>
 <div class="ni" data-p="novo">▶ Novo Contrato</div>
-<div class="ni" data-p="refi">⟳ Refinanciamento</div>
+<div class="ni" data-p="refi">⟳ Quitação de Terc.</div>
 <div class="ns">Vendas</div>
 <div class="ni" data-p="scripts">◎ Mensagens por Canal</div>
 <div class="ni" data-p="cadencia">↻ Cadência e Fechamento</div>
@@ -116,7 +116,7 @@ A venda acontece quando o cliente sente que <strong>descobriu uma oportunidade</
 <div class="sc" style="margin-top:16px">As Duas Operações — Clique para ir</div>
 <div class="grid g2">
 <div class="cd cl" style="border-left:3px solid var(--gn)" onclick="goTo('novo')"><h3 style="color:var(--gn)">Novo Contrato →</h3><p>Margem 100% livre. Associa à cooperativa, emite CCB, libera saque na conta.</p></div>
-<div class="cd cl" style="border-left:3px solid var(--or)" onclick="goTo('refi')"><h3 style="color:var(--or)">Refinanciamento Externo →</h3><p>Quitamos a dívida no outro banco e cedemos crédito a 3,99% + troco pro cliente.</p></div>
+<div class="cd cl" style="border-left:3px solid var(--or)" onclick="goTo('refi')"><h3 style="color:var(--or)">Quitação de Terceiros →</h3><p>Quitamos a dívida no outro banco e cedemos crédito a 3,99% + troco pro cliente.</p></div>
 </div>
 </div>
 
@@ -178,7 +178,7 @@ A mensalidade dá acesso a TODOS os benefícios. O 1º mês é grátis.
 
 <!-- REFINANCIAMENTO -->
 <div class="page hidden" id="page-refi">
-<div class="sc">Refinanciamento Externo — Guia Completo</div>
+<div class="sc">Quitação de Terceiros — Guia Completo</div>
 <div class="sb wn"><span class="sl sl-y">Operação de até 10 dias</span><div class="st">Exige transparência total com o cliente. Envie áudios explicando cada passo. Acompanhamento DIÁRIO. A confiança do cliente é tudo.</div></div>
 <div class="crm">Atualize o CRM a CADA etapa. Acompanhamento DIÁRIO com o cliente.</div>
 <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
@@ -717,6 +717,17 @@ document.querySelectorAll('#nc .oc, #rc .oc').forEach(function(el){
   });
 });
 
+// Migrate old format (array) to new (object) if needed
+function migrateClients(prefix){
+  try{
+    var raw=localStorage.getItem(prefix+'_clients');
+    if(!raw)return;
+    var parsed=JSON.parse(raw);
+    if(Array.isArray(parsed)){localStorage.removeItem(prefix+'_clients')}
+  }catch(e){localStorage.removeItem(prefix+'_clients')}
+}
+migrateClients('nc');migrateClients('rc');
+
 // Init clients
 renderClientTabs('nc');renderClientTabs('rc');
 var ncData=JSON.parse(localStorage.getItem('nc_clients')||'{}');
@@ -724,10 +735,29 @@ var ncKeys=Object.keys(ncData);if(ncKeys.length){activeClient.nc=ncKeys[0];loadC
 var rcData=JSON.parse(localStorage.getItem('rc_clients')||'{}');
 var rcKeys=Object.keys(rcData);if(rcKeys.length){activeClient.rc=rcKeys[0];loadClientState('rc',rcKeys[0])}
 
-// Notifications
+// Notifications — persist read state
 function toggleNotif(){document.getElementById('notifPanel').classList.toggle('hidden')}
 document.addEventListener('click',function(e){if(!e.target.closest('#notifBtn')&&!e.target.closest('#notifPanel'))document.getElementById('notifPanel').classList.add('hidden')});
-function markRead(el){el.classList.add('read');var unread=document.querySelectorAll('.notif-item:not(.read)').length;var badge=document.getElementById('notifBadge');badge.textContent=unread;if(!unread)badge.style.display='none'}
+function markRead(el){
+  var idx=Array.from(el.parentElement.children).filter(function(c){return c.classList.contains('notif-item')}).indexOf(el);
+  el.classList.add('read');
+  var readList=JSON.parse(localStorage.getItem('notifRead')||'[]');
+  if(readList.indexOf(idx)===-1)readList.push(idx);
+  localStorage.setItem('notifRead',JSON.stringify(readList));
+  updateNotifBadge();
+}
+function updateNotifBadge(){
+  var unread=document.querySelectorAll('.notif-item:not(.read)').length;
+  var badge=document.getElementById('notifBadge');
+  badge.textContent=unread;badge.style.display=unread?'flex':'none';
+}
+// Restore read state on load
+(function(){
+  var readList=JSON.parse(localStorage.getItem('notifRead')||'[]');
+  var items=document.querySelectorAll('.notif-item');
+  readList.forEach(function(idx){if(items[idx])items[idx].classList.add('read')});
+  updateNotifBadge();
+})()
 
 // Breathing exercise
 var breathRunning=false;
